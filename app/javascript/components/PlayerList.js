@@ -1,22 +1,54 @@
-import { Box, Button, Grid, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
+import { Box, Button, Grid, Table, TableBody, TableCell, TableHead, TableRow, TableSortLabel, Typography } from '@material-ui/core';
 import { Link } from '@reach/router';
 import React, { useEffect, useState } from 'react';
 
 const PlayerList = (props) => {
     const daysInWords = props.daysInWords;
     const [ players, setPlayers ] = useState([]);
+    const [ order, setOrder ] = useState('desc');
+    const [ orderBy, setOrderBy ] = useState('Points');
 
-    // Updates the array of players
+    // ======== Players array ========
+    
     const updatePlayers = () => {
         const requestPlayers = async () => {
             const response = await fetch(`api/players`);
             const { data } = await response.json();
-            setPlayers(data.sort((player1, player2) => player2.attributes.points - player1.attributes.points));
+            setPlayers(data);
         };
         requestPlayers();
     };
 
     useEffect(updatePlayers, []);
+
+    // ======== Sorting ========
+
+    const handleRequestSort = (event, property) => {
+        const isAsc = orderBy === property && order === 'asc';
+        setOrder(isAsc ? 'desc' : 'asc');
+        setOrderBy(property);
+    };
+
+    const createSortHandler = (property) => (event) => {
+        handleRequestSort(event, property);
+    };
+
+    function descendingComparator(a, b, orderBy) {
+        if (b.attributes[orderBy] < a.attributes[orderBy]) {
+            return -1;
+        } else if (b.attributes[orderBy] > a.attributes[orderBy]) {
+            return 1;
+        }
+        return 0;
+    }
+
+    const getComparator = (order, orderBy) => {
+        return order === 'desc'
+            ? (a, b) => descendingComparator(a, b, orderBy.toLowerCase())
+            : (a, b) => -descendingComparator(a, b, orderBy.toLowerCase());
+    };
+
+    // ======== Table ========
 
     const tableHeaders = [ 'Name', 'Level', 'Status', 'Points' ];
 
@@ -45,24 +77,37 @@ const PlayerList = (props) => {
                     <TableHead>
                         <TableRow color='primary'>
                             {tableHeaders.map((header, id) => (
-                                <TableCell key={id}>
-                                    <Typography variant='subtitle1'>
-                                        <Box fontWeight='fontWeightBold'>{header}</Box>
-                                    </Typography>
+                                <TableCell key={id} sortDirection={orderBy === header ? order : false}>
+                                    <TableSortLabel
+                                        active={orderBy === header}
+                                        direction={orderBy === header ? order : 'asc'}
+                                        onClick={createSortHandler(header)}
+                                    >
+                                        <Typography variant='subtitle1'>
+                                            <Box fontWeight='fontWeightBold'>{header}</Box>
+                                        </Typography>
+                                        {orderBy === header ? (
+                                            <span hidden>
+                                                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+                                            </span>
+                                        ) : null}
+                                    </TableSortLabel>
                                 </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {players.length ? (
-                            players.map((player) => (
-                                <TableRow key={player.id}>
-                                    <TableCell>{player.attributes.name}</TableCell>
-                                    <TableCell>{player.attributes.level}</TableCell>
-                                    <TableCell>{player.attributes.status ? 'Alive' : 'Dead'}</TableCell>
-                                    <TableCell>{player.attributes.points}</TableCell>
-                                </TableRow>
-                            ))
+                            players
+                                .sort(getComparator(order, orderBy))
+                                .map((player) => (
+                                    <TableRow key={player.id}>
+                                        <TableCell>{player.attributes.name}</TableCell>
+                                        <TableCell>{player.attributes.level}</TableCell>
+                                        <TableCell>{player.attributes.status ? 'Alive' : 'Dead'}</TableCell>
+                                        <TableCell>{player.attributes.points}</TableCell>
+                                    </TableRow>
+                                ))
                         ) : (
                             <TableRow>
                                 <TableCell colSpan='4'>No Players found!</TableCell>

@@ -3,6 +3,7 @@ import { Close as CloseIcon } from '@material-ui/icons';
 import { Link } from '@reach/router';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
+import NotFound from './NotFound';
 
 // Smaller components
 
@@ -67,48 +68,54 @@ const NextDayForm = (props) => (
     </div>
 );
 
-const LevelUpForm = (props) => (
-    <div>
-        <Typography variant='h6'>Increase player level</Typography>
-        <Typography variant='body1' color='primary'>
-            >> Use "END DAY" instead of this
-        </Typography>
+const LevelUpForm = (props) => {
+    const { players, handleSubmit } = props;
+    return (
+        <div>
+            <Typography variant='h6'>Increase player level</Typography>
+            <Typography variant='body1' color='primary'>
+                >> Use "END DAY" instead of this
+            </Typography>
 
-        <Formik
-            initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
-            onSubmit={(values) => props.handleSubmit(`/level_up?id=${values.id}`)}
-        >
-            <Form>
-                <Box my={1}>
-                    <PlayerNameField players={props.players} id='id' />
-                </Box>
-                <Button type='submit' variant='contained' color='primary' disabled>
-                    Level up
-                </Button>
-            </Form>
-        </Formik>
-    </div>
-);
+            <Formik
+                initialValues={{ id: players[0] ? players[0].id : '' }}
+                onSubmit={(values) => handleSubmit(`/level_up?id=${values.id}`)}
+            >
+                <Form>
+                    <Box my={1}>
+                        <PlayerNameField players={players} id='id' />
+                    </Box>
+                    <Button type='submit' variant='contained' color='primary' disabled>
+                        Level up
+                    </Button>
+                </Form>
+            </Formik>
+        </div>
+    );
+};
 
-const RevivePlayerForm = (props) => (
-    <div>
-        <Typography variant='h6'>Revive player</Typography>
+const RevivePlayerForm = (props) => {
+    const { players, handleSubmit } = props;
+    return (
+        <div>
+            <Typography variant='h6'>Revive player</Typography>
 
-        <Formik
-            initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
-            onSubmit={(values) => props.handleSubmit(`/revive?id=${values.id}`)}
-        >
-            <Form>
-                <Box my={1}>
-                    <PlayerNameField players={props.players} id='id' />
-                </Box>
-                <Button type='submit' variant='contained' color='primary'>
-                    Revive
-                </Button>
-            </Form>
-        </Formik>
-    </div>
-);
+            <Formik
+                initialValues={{ id: players[0] ? players[0].id : '' }}
+                onSubmit={(values) => handleSubmit(`/revive?id=${values.id}`)}
+            >
+                <Form>
+                    <Box my={1}>
+                        <PlayerNameField players={players} id='id' />
+                    </Box>
+                    <Button type='submit' variant='contained' color='primary'>
+                        Revive
+                    </Button>
+                </Form>
+            </Formik>
+        </div>
+    );
+};
 
 // Undo Action Forms
 
@@ -200,9 +207,10 @@ const UndoReviveForm = (props) => (
 
 // Main component
 
-const AdminActions = () => {
+const AdminActions = (props) => {
+    const { loggedInStatus, daysInWords, day, updateDay } = props;
+
     const [ players, setPlayers ] = useState([]);
-    const [ day, setDay ] = useState(0);
     const [ open, setOpen ] = useState(false);
     const [ message, setMessage ] = useState('Hello!');
 
@@ -220,30 +228,6 @@ const AdminActions = () => {
         requestPlayers();
     };
     useEffect(updatePlayers, []);
-
-    // Updates the current day
-    const updateDay = () => {
-        const requestCurrentDay = async () => {
-            const response = await fetch(`current_day`);
-            const { data } = await response.json();
-            setDay(data.day);
-        };
-        requestCurrentDay();
-    };
-    useEffect(updateDay, []);
-    const daysInWords = [
-        '11 March (Wednesday)',
-        '12 March (Thursday)',
-        '13 March (Friday)',
-        '14 March (Saturday)',
-        '15 March (Sunday)',
-        '16 March (Monday)',
-        '17 March (Tuesday)',
-        '18 March (Wednesday)',
-        '19 March (Thursday)',
-        '20 March (Friday)',
-        '21 March (Saturday)'
-    ];
 
     // Handles snackbar notifications
     const openSnackbar = (msg) => {
@@ -272,11 +256,10 @@ const AdminActions = () => {
                     openSnackbar('ERROR: Failed to carry out action. Please contact developer.');
                     break;
                 case 2:
-                    console.log(data);
                     openSnackbar(
                         'Player in invalid state. \n' +
-                            '(e.g. cannot kill an already-dead victim, or revive a living player)'
-                    );
+                        '(e.g. cannot kill an already-dead victim, or revive a living player)'
+                        );
                     break;
                 case 3:
                     openSnackbar('Victim has been killed by the same killer before');
@@ -302,9 +285,7 @@ const AdminActions = () => {
         sendRequest();
     };
 
-    // TODO: REACTIVATE CHECK
-    // return props.loggedInStatus ? (
-    return (
+    return loggedInStatus ? (
         <div>
             <Box p={2}>
                 <Typography variant='h2'>Admin Page</Typography>
@@ -324,7 +305,7 @@ const AdminActions = () => {
             <Box m={2}>
                 <Typography variant='h4'>Main actions</Typography>
 
-                <Grid container justify='flex-start' spacing='3'>
+                <Grid container justify='flex-start' spacing={3}>
                     <Grid item>
                         <PaperStyle>
                             <KillForm players={players} handleSubmit={handleSubmit} />
@@ -336,7 +317,7 @@ const AdminActions = () => {
                         </PaperStyle>
                     </Grid>
                 </Grid>
-                <Grid container justify='flex-start' spacing='3'>
+                <Grid container justify='flex-start' spacing={3}>
                     <Grid item>
                         <PaperStyle>
                             <LevelUpForm players={players} handleSubmit={handleSubmit} />
@@ -362,7 +343,7 @@ const AdminActions = () => {
                     >> Make sure actions are undone in order
                 </Typography>
 
-                <Grid container justify='flex-start' spacing='3'>
+                <Grid container justify='flex-start' spacing={3}>
                     <Grid item>
                         <PaperStyle>
                             <UndoKillForm players={players} handleSubmit={handleSubmit} />
@@ -374,7 +355,7 @@ const AdminActions = () => {
                         </PaperStyle>
                     </Grid>
                 </Grid>
-                <Grid container justify='flex-start' spacing='3'>
+                <Grid container justify='flex-start' spacing={3}>
                     <Grid item>
                         <PaperStyle>
                             <LevelDownForm players={players} handleSubmit={handleSubmit} />
@@ -404,8 +385,8 @@ const AdminActions = () => {
                 }
             />
         </div>
-        // ) : (
-        //     <NotFound />
+    ) : (
+        <NotFound />
     );
 };
 

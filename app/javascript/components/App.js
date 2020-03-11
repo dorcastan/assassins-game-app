@@ -41,7 +41,7 @@ function App() {
     };
 
     useEffect(updateDay, []);
-    
+
     const daysInWords = [
         '11 March (Wednesday)',
         '12 March (Thursday)',
@@ -61,7 +61,13 @@ function App() {
             <PlayerList path='/' daysInWords={daysInWords} day={day} />
             <TodayList path='/today' daysInWords={daysInWords} day={day} />
             <Login path='/login' handleLogin={handleLogin} />
-            <AdminActions path='/admin_actions' loggedInStatus={loggedInStatus} />
+            <AdminActions
+                path='/admin_actions'
+                loggedInStatus={loggedInStatus}
+                daysInWords={daysInWords}
+                day={day}
+                updateDay={updateDay}
+            />
             <NotFound default />
         </Router>
     );
