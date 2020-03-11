@@ -1,7 +1,9 @@
-import { Box, Button, Grid, InputLabel, MenuItem, Paper, Select, Typography } from '@material-ui/core';
+import { Box, Button, Grid, IconButton, InputLabel, MenuItem, Paper, Select, Snackbar, Typography } from '@material-ui/core';
+import { Close as CloseIcon } from '@material-ui/icons';
 import { Link } from '@reach/router';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
+import NotFound from './NotFound';
 
 const PaperStyle = (props) => (
     <Paper>
@@ -160,6 +162,8 @@ const UndoReviveForm = (props) => (
 
 const AdminActions = (props) => {
     const [ players, setPlayers ] = useState([]);
+    const [ open, setOpen ] = useState(false);
+    const [ message, setMessage ] = useState('Hello!');
 
     // Updates the array of players
     const updatePlayers = () => {
@@ -174,26 +178,61 @@ const AdminActions = (props) => {
         };
         requestPlayers();
     };
-
     useEffect(updatePlayers, []);
+
+    // Handles snackbar notifications
+    const openSnackbar = (msg) => {
+        setMessage(msg);
+        setOpen(true);
+    };
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setOpen(false);
+        setMessage('');
+    };
 
     // Template handleSubmit function for admin action forms
     const handleSubmit = (url) => {
         const sendRequest = async () => {
             const response = await fetch(url);
             const data = await response.json();
-            if (data.status == 0) {
-                console.log(data.player);
-            } else {
-                console.log(data);
+            switch (data.status) {
+                case 0:
+                    console.log(data.player);
+                    openSnackbar('Successfully updated!');
+                    break;
+                case 1:
+                    openSnackbar('ERROR: Failed to carry out action. Please contact developer.');
+                    break;
+                case 2:
+                    openSnackbar(
+                        'Player in invalid state. \n' +
+                            '(e.g. cannot kill an already-dead victim, or revive a living player)'
+                    );
+                    break;
+                case 3:
+                    openSnackbar('Victim has been killed by the same killer before');
+                    break;
+                case 4:
+                    openSnackbar('Killer has not killed this victim before');
+                    break;
+                case 10:
+                    openSnackbar('ERROR: Developer made a logic error somewhere. Please let her know.');
+                    break;
+                default:
+                    openSnackbar('ERROR: Please screenshot console (right click -> Inspect) and contact developer.');
+                    console.log(data);
+                    break;
             }
         };
         sendRequest();
     };
 
     // temporarily disable props.loggedInStatus check
-    // return props.loggedInStatus ? (
-    return (
+    return props.loggedInStatus ? (
+        // return (
         <div>
             <Box p={2}>
                 <Typography variant='h2'>Admin Page</Typography>
@@ -262,9 +301,25 @@ const AdminActions = (props) => {
                     </Grid>
                 </Grid>
             </Box>
+
+            <Snackbar
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left'
+                }}
+                open={open}
+                autoHideDuration={6000}
+                onClose={handleClose}
+                message={message}
+                action={
+                    <IconButton size='small' aria-label='close' color='inherit' onClick={handleClose}>
+                        <CloseIcon fontSize='small' />
+                    </IconButton>
+                }
+            />
         </div>
-        // ) : (
-        //     <NotFound />
+    ) : (
+        <NotFound />
     );
 };
 
