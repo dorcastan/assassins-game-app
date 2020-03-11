@@ -33,7 +33,7 @@ const TodayList = (props) => {
 
             <Typography component='div' variant='body1'>
                 <Box>Date: {daysInWords[props.day - 1]}</Box>
-                <Box variant='body1'>Number of kills: {kills.length}</Box>
+                <Box variant='body1'>Number of kills: {kills ? kills.length : 0}</Box>
             </Typography>
 
             <div>
