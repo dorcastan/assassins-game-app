@@ -1,7 +1,7 @@
 import { Box, Button, Grid, InputLabel, MenuItem, Paper, Select, Typography } from '@material-ui/core';
+import { Link } from '@reach/router';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import NotFound from './NotFound';
 
 const PaperStyle = (props) => (
     <Paper>
@@ -192,10 +192,18 @@ const AdminActions = (props) => {
     };
 
     // temporarily disable props.loggedInStatus check
-    return props.loggedInStatus ? (
+    // return props.loggedInStatus ? (
+    return (
         <div>
             <Box p={2}>
                 <Typography variant='h2'>Admin Page</Typography>
+                <Grid container justify='flex-end'>
+                    <Grid item>
+                        <Button component={Link} to='/' variant='contained'>
+                            Home
+                        </Button>
+                    </Grid>
+                </Grid>
             </Box>
             {/* {players.map((p) => (
                 <Typography variant='body1' key={p.id}>
@@ -255,8 +263,8 @@ const AdminActions = (props) => {
                 </Grid>
             </Box>
         </div>
-    ) : (
-        <NotFound />
+        // ) : (
+        //     <NotFound />
     );
 };
 
