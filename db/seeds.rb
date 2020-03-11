@@ -5,3 +5,9 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+
+player_names = ['Marcus', 'Nawat', 'Phoebe', "Yi Leo"]
+
+for name in player_names
+    Player.create(name: name, level: 1, status: true, points: 0)
+end

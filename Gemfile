@@ -20,6 +20,9 @@ gem 'jbuilder', '~> 2.7'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
 
+# Use JSONAPI::Resources to create JSON API from Rails
+gem 'jsonapi-resources'
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
