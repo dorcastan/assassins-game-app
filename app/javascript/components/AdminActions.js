@@ -70,7 +70,9 @@ const NextDayForm = (props) => (
 const LevelUpForm = (props) => (
     <div>
         <Typography variant='h6'>Increase player level</Typography>
-        <Typography variant='body1' color='primary'>>> Use "END DAY" instead of this</Typography>
+        <Typography variant='body1' color='primary'>
+            >> Use "END DAY" instead of this
+        </Typography>
 
         <Formik
             initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
@@ -155,7 +157,9 @@ const LevelDownForm = (props) => (
     <div>
         <Typography variant='h6'>Undo increase in player level</Typography>
         <Typography variant='body1'>i.e. Level down</Typography>
-        <Typography variant='body1' color='secondary'>>> You shouldn't need to use this</Typography>
+        <Typography variant='body1' color='secondary'>
+            >> You shouldn't need to use this
+        </Typography>
 
         <Formik
             initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
@@ -196,7 +200,7 @@ const UndoReviveForm = (props) => (
 
 // Main component
 
-const AdminActions = (props) => {
+const AdminActions = () => {
     const [ players, setPlayers ] = useState([]);
     const [ day, setDay ] = useState(0);
     const [ open, setOpen ] = useState(false);
@@ -219,7 +223,6 @@ const AdminActions = (props) => {
 
     // Updates the current day
     const updateDay = () => {
-        console.log('updateDay');
         const requestCurrentDay = async () => {
             const response = await fetch(`current_day`);
             const { data } = await response.json();
@@ -228,6 +231,19 @@ const AdminActions = (props) => {
         requestCurrentDay();
     };
     useEffect(updateDay, []);
+    const daysInWords = [
+        '11 March (Wednesday)',
+        '12 March (Thursday)',
+        '13 March (Friday)',
+        '14 March (Saturday)',
+        '15 March (Sunday)',
+        '16 March (Monday)',
+        '17 March (Tuesday)',
+        '18 March (Wednesday)',
+        '19 March (Thursday)',
+        '20 March (Friday)',
+        '21 March (Saturday)'
+    ];
 
     // Handles snackbar notifications
     const openSnackbar = (msg) => {
@@ -286,7 +302,7 @@ const AdminActions = (props) => {
         sendRequest();
     };
 
-    // temporarily disable props.loggedInStatus check
+    // TODO: REACTIVATE CHECK
     // return props.loggedInStatus ? (
     return (
         <div>
@@ -316,7 +332,7 @@ const AdminActions = (props) => {
                     </Grid>
                     <Grid item>
                         <PaperStyle>
-                            <NextDayForm day={day} handleSubmit={handleSubmit} />
+                            <NextDayForm day={daysInWords[day - 1]} handleSubmit={handleSubmit} />
                         </PaperStyle>
                     </Grid>
                 </Grid>
@@ -354,7 +370,7 @@ const AdminActions = (props) => {
                     </Grid>
                     <Grid item>
                         <PaperStyle>
-                            <UndoNextDayForm day={day} handleSubmit={handleSubmit} />
+                            <UndoNextDayForm day={daysInWords[day - 1]} handleSubmit={handleSubmit} />
                         </PaperStyle>
                     </Grid>
                 </Grid>

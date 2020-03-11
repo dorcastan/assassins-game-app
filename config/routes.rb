@@ -4,6 +4,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     jsonapi_resources :players
+    jsonapi_resources :kills
   end
 
   post '/login', to: 'sessions#create'

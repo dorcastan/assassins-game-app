@@ -2,7 +2,8 @@ import { Box, Button, Grid, Table, TableBody, TableCell, TableHead, TableRow, Ty
 import { Link } from '@reach/router';
 import React, { useEffect, useState } from 'react';
 
-const PlayerList = () => {
+const PlayerList = (props) => {
+    const daysInWords = props.daysInWords;
     const [ players, setPlayers ] = useState([]);
 
     // Updates the array of players
@@ -22,20 +23,32 @@ const PlayerList = () => {
     return (
         <Box m={2}>
             <Typography variant='h2'>Phoenix Assassins</Typography>
-            <Grid container justify='flex-end'>
+            <Grid container justify='flex-end' spacing={1}>
+                <Grid item>
+                    <Button component={Link} to='/today' variant='contained' color='secondary'>
+                        Today's Kills
+                    </Button>
+                </Grid>
                 <Grid item>
                     <Button component={Link} to='/login' variant='contained'>
                         Login
                     </Button>
                 </Grid>
             </Grid>
-            <div>
+
+            <Typography component='div' variant='body1'>
+                <Box>Date: {daysInWords[props.day - 1]}</Box>
+            </Typography>
+
+            <Box m={1}>
                 <Table>
                     <TableHead>
                         <TableRow color='primary'>
                             {tableHeaders.map((header, id) => (
                                 <TableCell key={id}>
-                                    <Typography variant='subtitle1'>{header}</Typography>
+                                    <Typography variant='subtitle1'>
+                                        <Box fontWeight='fontWeightBold'>{header}</Box>
+                                    </Typography>
                                 </TableCell>
                             ))}
                         </TableRow>
@@ -57,10 +70,12 @@ const PlayerList = () => {
                         )}
                     </TableBody>
                 </Table>
+            </Box>
+            <Box my={1}>
                 <Button onClick={updatePlayers} variant='contained' color='primary'>
                     Refresh
                 </Button>
-            </div>
+            </Box>
         </Box>
     );
 };
