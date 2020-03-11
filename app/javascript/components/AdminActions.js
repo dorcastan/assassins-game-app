@@ -245,7 +245,7 @@ const AdminActions = (props) => {
     // Template handleSubmit function for admin action forms
     const handleSubmit = (url) => {
         const sendRequest = async () => {
-            const response = await fetch(url);
+            const response = await fetch(`/actions${url}`);
             const data = await response.json();
             switch (data.status) {
                 case 0:
@@ -268,7 +268,7 @@ const AdminActions = (props) => {
                     openSnackbar('Killer has not killed this victim before');
                     break;
                 case 5:
-                    openSnackbar('Day should be between 1 and 10');
+                    openSnackbar('Day is out of range (11-21 March)');
                     break;
                 case 6:
                     openSnackbar('Cannot kill self!');

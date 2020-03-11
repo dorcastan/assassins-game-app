@@ -33,7 +33,7 @@ function App() {
     // Current day
     const updateDay = () => {
         const requestCurrentDay = async () => {
-            const response = await fetch(`current_day`);
+            const response = await fetch(`actions/current_day`);
             const { data } = await response.json();
             setDay(data.day);
         };
