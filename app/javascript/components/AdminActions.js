@@ -3,7 +3,8 @@ import { Close as CloseIcon } from '@material-ui/icons';
 import { Link } from '@reach/router';
 import { Field, Form, Formik } from 'formik';
 import React, { useEffect, useState } from 'react';
-import NotFound from './NotFound';
+
+// Smaller components
 
 const PaperStyle = (props) => (
     <Paper>
@@ -51,9 +52,26 @@ const KillForm = (props) => (
     </div>
 );
 
+const NextDayForm = (props) => (
+    <div>
+        <Typography variant='h6'>Mark end of day</Typography>
+        <Typography variant='body1'>i.e. Update player levels based on today's kills</Typography>
+
+        <br />
+        <Typography variant='subtitle1' color='primary'>
+            Current day: {props.day}
+        </Typography>
+        <Button onClick={() => props.handleSubmit(`/next_day`)} variant='contained' color='primary'>
+            End Day
+        </Button>
+    </div>
+);
+
 const LevelUpForm = (props) => (
     <div>
         <Typography variant='h6'>Increase player level</Typography>
+        <Typography variant='body1' color='primary'>>> Use "END DAY" instead of this</Typography>
+
         <Formik
             initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
             onSubmit={(values) => props.handleSubmit(`/level_up?id=${values.id}`)}
@@ -62,7 +80,7 @@ const LevelUpForm = (props) => (
                 <Box my={1}>
                     <PlayerNameField players={props.players} id='id' />
                 </Box>
-                <Button type='submit' variant='contained' color='primary'>
+                <Button type='submit' variant='contained' color='primary' disabled>
                     Level up
                 </Button>
             </Form>
@@ -118,10 +136,26 @@ const UndoKillForm = (props) => (
     </div>
 );
 
+const UndoNextDayForm = (props) => (
+    <div>
+        <Typography variant='h6'>Undo end of day</Typography>
+        <Typography variant='body1'>i.e. Go back to yesterday's player levels</Typography>
+
+        <br />
+        <Typography variant='subtitle1' color='secondary'>
+            Current day: {props.day}
+        </Typography>
+        <Button onClick={() => props.handleSubmit(`/undo_next_day`)} variant='contained' color='secondary'>
+            Go Back
+        </Button>
+    </div>
+);
+
 const LevelDownForm = (props) => (
     <div>
-        <Typography variant='h6'>Undo level up</Typography>
-        <Typography variant='body1'>i.e. level down</Typography>
+        <Typography variant='h6'>Undo increase in player level</Typography>
+        <Typography variant='body1'>i.e. Level down</Typography>
+        <Typography variant='body1' color='secondary'>>> You shouldn't need to use this</Typography>
 
         <Formik
             initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
@@ -131,7 +165,7 @@ const LevelDownForm = (props) => (
                 <Box my={1}>
                     <PlayerNameField players={props.players} id='id' />
                 </Box>
-                <Button type='submit' variant='contained' color='secondary'>
+                <Button type='submit' variant='contained' color='secondary' disabled>
                     Undo level up
                 </Button>
             </Form>
@@ -142,7 +176,7 @@ const LevelDownForm = (props) => (
 const UndoReviveForm = (props) => (
     <div>
         <Typography variant='h6'>Undo revive</Typography>
-        <Typography variant='body1'>i.e. make player dead</Typography>
+        <Typography variant='body1'>i.e. Make player dead</Typography>
 
         <Formik
             initialValues={{ id: props.players[0] ? props.players[0].id : '' }}
@@ -160,8 +194,11 @@ const UndoReviveForm = (props) => (
     </div>
 );
 
+// Main component
+
 const AdminActions = (props) => {
     const [ players, setPlayers ] = useState([]);
+    const [ day, setDay ] = useState(0);
     const [ open, setOpen ] = useState(false);
     const [ message, setMessage ] = useState('Hello!');
 
@@ -179,6 +216,18 @@ const AdminActions = (props) => {
         requestPlayers();
     };
     useEffect(updatePlayers, []);
+
+    // Updates the current day
+    const updateDay = () => {
+        console.log('updateDay');
+        const requestCurrentDay = async () => {
+            const response = await fetch(`current_day`);
+            const { data } = await response.json();
+            setDay(data.day);
+        };
+        requestCurrentDay();
+    };
+    useEffect(updateDay, []);
 
     // Handles snackbar notifications
     const openSnackbar = (msg) => {
@@ -200,13 +249,14 @@ const AdminActions = (props) => {
             const data = await response.json();
             switch (data.status) {
                 case 0:
-                    console.log(data.player);
                     openSnackbar('Successfully updated!');
+                    updateDay(); // HACKY
                     break;
                 case 1:
                     openSnackbar('ERROR: Failed to carry out action. Please contact developer.');
                     break;
                 case 2:
+                    console.log(data);
                     openSnackbar(
                         'Player in invalid state. \n' +
                             '(e.g. cannot kill an already-dead victim, or revive a living player)'
@@ -217,6 +267,12 @@ const AdminActions = (props) => {
                     break;
                 case 4:
                     openSnackbar('Killer has not killed this victim before');
+                    break;
+                case 5:
+                    openSnackbar('Day should be between 1 and 10');
+                    break;
+                case 6:
+                    openSnackbar('Cannot kill self!');
                     break;
                 case 10:
                     openSnackbar('ERROR: Developer made a logic error somewhere. Please let her know.');
@@ -231,8 +287,8 @@ const AdminActions = (props) => {
     };
 
     // temporarily disable props.loggedInStatus check
-    return props.loggedInStatus ? (
-        // return (
+    // return props.loggedInStatus ? (
+    return (
         <div>
             <Box p={2}>
                 <Typography variant='h2'>Admin Page</Typography>
@@ -252,12 +308,19 @@ const AdminActions = (props) => {
             <Box m={2}>
                 <Typography variant='h4'>Main actions</Typography>
 
-                <Grid container justify='space-evenly'>
+                <Grid container justify='flex-start' spacing='3'>
                     <Grid item>
                         <PaperStyle>
                             <KillForm players={players} handleSubmit={handleSubmit} />
                         </PaperStyle>
                     </Grid>
+                    <Grid item>
+                        <PaperStyle>
+                            <NextDayForm day={day} handleSubmit={handleSubmit} />
+                        </PaperStyle>
+                    </Grid>
+                </Grid>
+                <Grid container justify='flex-start' spacing='3'>
                     <Grid item>
                         <PaperStyle>
                             <LevelUpForm players={players} handleSubmit={handleSubmit} />
@@ -273,22 +336,29 @@ const AdminActions = (props) => {
                 <Box m={5} />
 
                 <Typography variant='h4'>Undo actions</Typography>
-                <Typography variant='h6' color='secondary'>
+                <Typography variant='subtitle1' color='secondary'>
                     >> Use with caution!
                 </Typography>
-                <Typography variant='h6' color='secondary'>
+                <Typography variant='subtitle1' color='secondary'>
                     >> Make sure only ONE person uses this at a time
                 </Typography>
-                <Typography variant='h6' color='secondary'>
+                <Typography variant='subtitle1' color='secondary'>
                     >> Make sure actions are undone in order
                 </Typography>
 
-                <Grid container justify='space-evenly'>
+                <Grid container justify='flex-start' spacing='3'>
                     <Grid item>
                         <PaperStyle>
                             <UndoKillForm players={players} handleSubmit={handleSubmit} />
                         </PaperStyle>
                     </Grid>
+                    <Grid item>
+                        <PaperStyle>
+                            <UndoNextDayForm day={day} handleSubmit={handleSubmit} />
+                        </PaperStyle>
+                    </Grid>
+                </Grid>
+                <Grid container justify='flex-start' spacing='3'>
                     <Grid item>
                         <PaperStyle>
                             <LevelDownForm players={players} handleSubmit={handleSubmit} />
@@ -318,8 +388,8 @@ const AdminActions = (props) => {
                 }
             />
         </div>
-    ) : (
-        <NotFound />
+        // ) : (
+        //     <NotFound />
     );
 };
 

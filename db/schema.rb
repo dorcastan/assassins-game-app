@@ -10,16 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_11_071951) do
+ActiveRecord::Schema.define(version: 2020_03_11_155002) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "games", force: :cascade do |t|
+    t.integer "current_day"
+  end
 
   create_table "kills", force: :cascade do |t|
     t.bigint "killer_id"
     t.bigint "victim_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "day"
     t.index ["killer_id"], name: "index_kills_on_killer_id"
     t.index ["victim_id"], name: "index_kills_on_victim_id"
   end
@@ -31,6 +36,8 @@ ActiveRecord::Schema.define(version: 2020_03_11_071951) do
     t.integer "points"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "game_id"
+    t.index ["game_id"], name: "index_players_on_game_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -40,4 +47,5 @@ ActiveRecord::Schema.define(version: 2020_03_11_071951) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "players", "games"
 end

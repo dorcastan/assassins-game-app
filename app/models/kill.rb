@@ -4,4 +4,5 @@ class Kill < ApplicationRecord
 
     validates :killer, presence: true
     validates :victim, presence: true
+    validates :day, presence: true
 end
