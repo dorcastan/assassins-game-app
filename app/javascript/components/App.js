@@ -9,7 +9,7 @@ import TodayList from './TodayList';
 function App() {
     const [ loggedInStatus, setLoggedInStatus ] = useState(false);
     const [ user, setUser ] = useState({});
-    const [ day, setDay ] = useState(0);
+    const [ day, setDay ] = useState(1);
 
     // Login
     const checkLoggedInStatus = () => {

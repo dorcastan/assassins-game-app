@@ -1,4 +1,5 @@
-import { Box, Button, Grid, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
+import { Box, Button, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@material-ui/core';
+import { ArrowLeft, ArrowRight } from '@material-ui/icons';
 import { Link } from '@reach/router';
 import React, { useEffect, useState } from 'react';
 
@@ -6,17 +7,33 @@ const TodayList = (props) => {
     const daysInWords = props.daysInWords;
 
     const [ kills, setKills ] = useState([]);
+    const [ day, setDay ] = useState(props.day);
 
     // Updates the array of players
     const updateKills = () => {
         const requestKills = async () => {
-            const response = await fetch(`api/kills?filter[day]=${props.day}`);
+            const response = await fetch(`api/kills?filter[day]=${day}`);
             const { data } = await response.json();
-            setKills(data);
+            setKills(
+                data.map((kill) => ({
+                    id: kill.id,
+                    killer: kill.attributes.killer,
+                    victim: kill.attributes.victim,
+                    day: kill.attributes.day
+                }))
+            );
         };
         requestKills();
     };
-    useEffect(updateKills, [ props.day ]);
+    useEffect(updateKills, [ day ]);
+
+    const changeDay = (direction) => {
+        if (direction === 'up' && day <= 10) {
+            setDay(day + 1);
+        } else if (direction === 'down' && day > 1) {
+            setDay(day - 1);
+        }
+    };
 
     const tableHeaders = [ 'Kill Log' ];
 
@@ -31,8 +48,31 @@ const TodayList = (props) => {
                 </Grid>
             </Grid>
 
+            <br />
+
+            <Grid container justify='space-between'>
+                <Grid item>
+                    <IconButton
+                        onClick={() => changeDay('down')}
+                        disabled={day <= 1}
+                        color='primary'
+                    >
+                        <ArrowLeft />
+                    </IconButton>
+                </Grid>
+                <Grid item>
+                    <IconButton
+                        onClick={() => changeDay('up')}
+                        disabled={day >= props.day}
+                        color='primary'
+                    >
+                        <ArrowRight />
+                    </IconButton>
+                </Grid>
+            </Grid>
+
             <Typography component='div' variant='body1'>
-                <Box>Date: {daysInWords[props.day - 1]}</Box>
+                <Box>Date: {daysInWords[day - 1]}</Box>
                 <Box variant='body1'>Number of kills: {kills ? kills.length : 0}</Box>
             </Typography>
 
@@ -50,11 +90,11 @@ const TodayList = (props) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {kills.length ? (
+                        {kills && kills.length ? (
                             kills.map((kill) => (
                                 <TableRow key={kill.id}>
                                     <TableCell>
-                                        {kill.attributes.killer[1]} killed {kill.attributes.victim[1]}
+                                        {kill.killer[1]} killed {kill.victim[1]}
                                     </TableCell>
                                 </TableRow>
                             ))
