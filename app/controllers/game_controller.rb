@@ -133,6 +133,10 @@ class GameController < ApplicationController
             render json: {
                 status: 4 # wrong killer-victim pair
             }
+        elsif wrong_kill[0].day != current_game.current_day
+            render json: {
+                status: 7 # kill was on a different day
+            }
         elsif killer.points < victim.level * 100
             render json: {
                 status: 10 # critical bug somewhere (logic error)

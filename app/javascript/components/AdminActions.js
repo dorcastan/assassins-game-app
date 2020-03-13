@@ -85,7 +85,7 @@ const LevelUpForm = (props) => {
                     <Box my={1}>
                         <PlayerNameField players={players} id='id' />
                     </Box>
-                    <Button type='submit' variant='contained' color='primary'>
+                    <Button type='submit' variant='contained'>
                         Level up
                     </Button>
                 </Form>
@@ -176,7 +176,7 @@ const LevelDownForm = (props) => (
                 <Box my={1}>
                     <PlayerNameField players={props.players} id='id' />
                 </Box>
-                <Button type='submit' variant='contained' color='secondary'>
+                <Button type='submit' variant='contained'>
                     Undo level up
                 </Button>
             </Form>
@@ -272,6 +272,9 @@ const AdminActions = (props) => {
                     break;
                 case 6:
                     openSnackbar('Cannot kill self!');
+                    break;
+                case 7:
+                    openSnackbar('Wrong day: Change to the day of the original kill and try again.');
                     break;
                 case 10:
                     openSnackbar('ERROR: Developer made a logic error somewhere. Please let her know.');
