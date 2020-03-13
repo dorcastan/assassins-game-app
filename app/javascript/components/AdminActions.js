@@ -85,7 +85,7 @@ const LevelUpForm = (props) => {
                     <Box my={1}>
                         <PlayerNameField players={players} id='id' />
                     </Box>
-                    <Button type='submit' variant='contained' color='primary' disabled>
+                    <Button type='submit' variant='contained' color='primary'>
                         Level up
                     </Button>
                 </Form>
@@ -176,7 +176,7 @@ const LevelDownForm = (props) => (
                 <Box my={1}>
                     <PlayerNameField players={props.players} id='id' />
                 </Box>
-                <Button type='submit' variant='contained' color='secondary' disabled>
+                <Button type='submit' variant='contained' color='secondary'>
                     Undo level up
                 </Button>
             </Form>
